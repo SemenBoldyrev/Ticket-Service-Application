@@ -176,6 +176,17 @@ def validate_staff_name(name: str) -> bool:
         return False
     return True
 
+def redact_staff_name(name: str) -> str:
+    """
+    redacts staff name, to make them suitable for reading
+    """
+    name_lst = name.split(" ")
+    new_name = ""
+    for i in range(len(name_lst)):
+        name_lst[i] = name_lst[i].capitalize()
+    new_name = " ".join(name_lst)
+    return new_name
+
 def add_comment(ticket_id: int, comment: str) -> None:
     """
     Add comment/update to ticket

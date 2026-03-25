@@ -153,7 +153,11 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
         print(f"Error: Ticket #{ticket_id} not found")
         return
 
-    ticket['assigned_to'] = staff_name
+    if not validate_staff_name(staff_name):
+        print("Error: Invalid staff name. Please enter a valid name without special characters or numbers.")
+        return
+
+    ticket['assigned_to'] = redact_staff_name(staff_name)
     ticket['comments'].append(f"Ticket assigned to {staff_name}")
 
     # Auto-change status to In Progress if currently Open
@@ -162,6 +166,30 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
 
     print(f"\n✓ Ticket #{ticket_id} assigned to {staff_name}")
 
+def validate_staff_name(name: str) -> bool:
+    """
+    Validates, that staff name is acceptable to use.
+    """
+    banned_strings = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "[", "]", "{", "}", "(", ")", "<", ">", "/", "\\", "|", "@", "#", "$", "%", "^", "&", "*", "!", "~", '"',]
+
+    if len(name.strip()) == 0:
+        return False
+    if name.isdigit():
+        return False
+    if any(banned in name.lower() for banned in banned_strings):
+        return False
+    return True
+
+def redact_staff_name(name: str) -> str:
+    """
+    redacts staff name, to make them suitable for reading
+    """
+    name_lst = name.split(" ")
+    new_name = ""
+    for i in range(len(name_lst)):
+        name_lst[i] = name_lst[i].capitalize()
+    new_name = " ".join(name_lst)
+    return new_name
 
 def add_comment(ticket_id: int, comment: str) -> None:
     """

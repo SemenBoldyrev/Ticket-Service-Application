@@ -162,6 +162,19 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
 
     print(f"\n✓ Ticket #{ticket_id} assigned to {staff_name}")
 
+def validate_staff_name(name: str) -> bool:
+    """
+    Validates, that staff name is acceptable to use.
+    """
+    banned_strings = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "[", "]", "{", "}", "(", ")", "<", ">", "/", "\\", "|", "@", "#", "$", "%", "^", "&", "*", "!", "~", '"',]
+
+    if name.strip().len() == 0:
+        return False
+    if name.isdigit():
+        return False
+    if any(banned in name.lower() for banned in banned_strings):
+        return False
+    return True
 
 def add_comment(ticket_id: int, comment: str) -> None:
     """

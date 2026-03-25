@@ -153,7 +153,11 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
         print(f"Error: Ticket #{ticket_id} not found")
         return
 
-    ticket['assigned_to'] = staff_name
+    if not validate_staff_name(staff_name):
+        print("Error: Invalid staff name. Please enter a valid name without special characters or numbers.")
+        return
+
+    ticket['assigned_to'] = redact_staff_name(staff_name)
     ticket['comments'].append(f"Ticket assigned to {staff_name}")
 
     # Auto-change status to In Progress if currently Open
@@ -168,7 +172,7 @@ def validate_staff_name(name: str) -> bool:
     """
     banned_strings = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "[", "]", "{", "}", "(", ")", "<", ">", "/", "\\", "|", "@", "#", "$", "%", "^", "&", "*", "!", "~", '"',]
 
-    if name.strip().len() == 0:
+    if len(name.strip()) == 0:
         return False
     if name.isdigit():
         return False

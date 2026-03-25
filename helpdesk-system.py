@@ -215,7 +215,7 @@ def search_tickets(query: str) -> None:
     print(f"\n=== Search Results for '{query}' ===")
 
     # Try to search by ID first
-    if query.isdigit():
+    if query.strip().isdigit():
         ticket_id = int(query)
         ticket = find_ticket_by_id(ticket_id)
         if ticket:

@@ -73,12 +73,26 @@ def create_ticket() -> None:
     if not description:
         print("Error: Description cannot be empty")
         return
+    
+    # Select priority
+    if len(priority_levels) == 0:
+        priority = "Medium"
+    else:
+        print("Priority levels:")
+        for i in range(len(priority_levels)):
+            print(f"{i + 1}. {priority_levels[i]}")
+
+        priority = input(f"select priority (1-{len(priority_levels)}): ").strip()
+        if not priority.isdigit() or not (1 <= int(priority) <= len(priority_levels)):
+            print("Error: Invalid priority selection")
+            return
 
     # Create new ticket
     new_ticket = {
         'id': ticket_counter,
         'title': title,
         'description': description,
+        'priority': priority_levels[int(priority) - 1],
         'status': 'Open',
         'assigned_to': 'Unassigned',
         'created_at': datetime.datetime.now(),

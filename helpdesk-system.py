@@ -13,18 +13,20 @@ from typing import List, Dict, Optional
 
 # Global data structures
 tickets: List[Dict] = []
+priority_levels = []
 ticket_counter = 1
 
 # Starter tickets (demonstrates existing system with some data)
 def initialize_starter_data():
     """Initialize system with 3 existing tickets to demonstrate 'existing codebase' concept"""
-    global tickets, ticket_counter
+    global tickets, priority_levels, ticket_counter
 
     tickets = [
         {
             'id': 1,
             'title': 'Cannot access shared drive',
             'description': 'User reports unable to connect to //fileserver/shared. Getting "access denied" error.',
+            'priority': 'High',
             'status': 'Open',
             'assigned_to': 'Support Team',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=2),
@@ -34,6 +36,7 @@ def initialize_starter_data():
             'id': 2,
             'title': 'Printer not working in Room 301',
             'description': 'HP LaserJet in Room 301 showing error code 49. Paper jams frequently.',
+            'priority': 'Medium',
             'status': 'In Progress',
             'assigned_to': 'Alice Johnson',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=1),
@@ -43,12 +46,16 @@ def initialize_starter_data():
             'id': 3,
             'title': 'Email not syncing on mobile device',
             'description': 'User cannot receive emails on iPhone. Webmail works fine.',
+            'priority': 'Low',
             'status': 'Closed',
             'assigned_to': 'Bob Smith',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=3),
             'comments': ['Bob: Reset mobile sync settings', 'Bob: Issue resolved, user confirmed emails working']
         }
     ]
+
+    priority_levels = ['Low', 'Medium', 'High']
+
     ticket_counter = 4  # Next ticket will be ID 4
 
 
@@ -104,14 +111,14 @@ def view_tickets(filter_status: Optional[str] = None) -> None:
         return
 
     # Display tickets in table format
-    print(f"\n{'ID':<5} {'Title':<30} {'Status':<15} {'Assigned To':<20} {'Created':<12}")
-    print("-" * 85)
+    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Status':<15} {'Assigned To':<20} {'Created':<12}")
+    print("-" * 95)
 
     for ticket in filtered_tickets:
         created_str = ticket['created_at'].strftime('%Y-%m-%d')
         title_truncated = ticket['title'][:28] + '..' if len(ticket['title']) > 30 else ticket['title']
 
-        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['status']:<15} "
+        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['status']:<15} "
               f"{ticket['assigned_to']:<20} {created_str:<12}")
 
     print(f"\nTotal: {len(filtered_tickets)} tickets")
@@ -141,6 +148,7 @@ def view_ticket_details(ticket_id: int) -> None:
     print("\n" + "=" * 60)
     print(f"Ticket #{ticket['id']}: {ticket['title']}")
     print("=" * 60)
+    print(f"Priority: {ticket['priority']}")
     print(f"Status: {ticket['status']}")
     print(f"Assigned To: {ticket['assigned_to']}")
     print(f"Created: {ticket['created_at'].strftime('%Y-%m-%d %H:%M')}")

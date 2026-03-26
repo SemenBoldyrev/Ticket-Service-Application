@@ -94,9 +94,10 @@ def view_tickets(filter_status: Optional[str] = None) -> None:
 
     # Filter tickets by status if specified
     filtered_tickets = tickets
+    redacted_filter_status = ticket_status_redact(filter_status)
     if filter_status:
-        filtered_tickets = [t for t in tickets if t['status'] == filter_status]
-        print(f"Filter: {filter_status} tickets only")
+        filtered_tickets = [t for t in tickets if t['status'] == redacted_filter_status]
+        print(f"Filter: '{redacted_filter_status}' tickets only")
 
     if not filtered_tickets:
         print("No tickets found")
@@ -115,6 +116,20 @@ def view_tickets(filter_status: Optional[str] = None) -> None:
 
     print(f"\nTotal: {len(filtered_tickets)} tickets")
 
+def ticket_status_redact(status: str) -> str:
+    """
+    Redacts ticket status, to make them suitable for using in system\n
+    removing whitespaces and make every word capitalized\n
+    If given none, returns none
+    """
+    if not status:
+        return None
+    status_list = status.strip().split(" ")
+    for i in range(len(status_list)):
+        status_list[i] = status_list[i].capitalize()
+    new_status = " ".join(status_list)
+    return new_status
+    
 
 def view_ticket_details(ticket_id: int) -> None:
     """View full details of a specific ticket"""

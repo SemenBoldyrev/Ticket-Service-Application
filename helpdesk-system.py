@@ -114,7 +114,7 @@ def ask_for_priority() -> str:
             return None
         return priority_levels[int(priority) - 1]
 
-def view_tickets(filter_status: Optional[str] = None) -> None:
+def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[str] = None) -> None:
     """
     View all tickets or filtered by status
 
@@ -129,6 +129,10 @@ def view_tickets(filter_status: Optional[str] = None) -> None:
     if filter_status:
         filtered_tickets = [t for t in tickets if t['status'] == redacted_filter_status]
         print(f"Filter: '{redacted_filter_status}' tickets only")
+    
+    if filter_priority:
+        filtered_tickets = [t for t in filtered_tickets if t['priority'] == filter_priority]
+        print(f"Filter: '{filter_priority}' priority tickets only")
 
     if not filtered_tickets:
         print("No tickets found")
@@ -351,6 +355,7 @@ def main_menu() -> None:
         print("6. Add comment to ticket")
         print("7. Close ticket")
         print("8. Search tickets")
+        print("9. Search tickets by priority")
         print("0. Exit")
 
         choice = input("\nSelect option: ").strip()
@@ -402,6 +407,13 @@ def main_menu() -> None:
             query = input("Search query (ID or keywords): ").strip()
             if query:
                 search_tickets(query)
+
+        elif choice == '9':
+            priority = ask_for_priority()
+            if priority:
+                view_tickets(filter_priority=priority)
+            else:
+                print("Error: Invalid priority selection")
 
         elif choice == '0':
             print("\n👋 Thank you for using Helpdesk System!")

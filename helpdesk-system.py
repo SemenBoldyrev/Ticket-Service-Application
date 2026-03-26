@@ -75,24 +75,17 @@ def create_ticket() -> None:
         return
     
     # Select priority
-    if len(priority_levels) == 0:
-        priority = "Medium"
-    else:
-        print("Priority levels:")
-        for i in range(len(priority_levels)):
-            print(f"{i + 1}. {priority_levels[i]}")
-
-        priority = input(f"select priority (1-{len(priority_levels)}): ").strip()
-        if not priority.isdigit() or not (1 <= int(priority) <= len(priority_levels)):
-            print("Error: Invalid priority selection")
-            return
+    priority = ask_for_priority()
+    if not priority:
+        print("Error: Invalid priority selection")
+        return
 
     # Create new ticket
     new_ticket = {
         'id': ticket_counter,
         'title': title,
         'description': description,
-        'priority': priority_levels[int(priority) - 1],
+        'priority': priority,
         'status': 'Open',
         'assigned_to': 'Unassigned',
         'created_at': datetime.datetime.now(),
@@ -103,6 +96,23 @@ def create_ticket() -> None:
     print(f"\n✓ Ticket #{ticket_counter} created successfully")
     ticket_counter += 1
 
+def ask_for_priority() -> str:
+    """
+    Ask user to select priority level\n
+    if priority levels are not defined, returns 'Medium'\n
+    if user answer is invalid, returns None
+    """
+    if len(priority_levels) == 0:
+        priority = "Medium"
+    else:
+        print("Priority levels:")
+        for i in range(len(priority_levels)):
+            print(f"{i + 1}. {priority_levels[i]}")
+
+        priority = input(f"select priority (1-{len(priority_levels)}): ").strip()
+        if not priority.isdigit() or not (1 <= int(priority) <= len(priority_levels)):
+            return None
+        return priority_levels[int(priority) - 1]
 
 def view_tickets(filter_status: Optional[str] = None) -> None:
     """

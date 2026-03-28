@@ -88,6 +88,12 @@ def create_ticket() -> None:
     if not priority:
         print("Error: Invalid priority selection")
         return
+    
+    # Select category
+    category = ask_for_ListData("Category", categories_list, default_categories)
+    if not category:
+        print("Error: Invalid category selection")
+        return
 
     # Create new ticket
     new_ticket = {
@@ -95,6 +101,7 @@ def create_ticket() -> None:
         'title': title,
         'description': description,
         'priority': priority,
+        'category': category,
         'status': 'Open',
         'assigned_to': 'Unassigned',
         'created_at': datetime.datetime.now(),
@@ -148,14 +155,14 @@ def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[
         return
 
     # Display tickets in table format
-    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Status':<15} {'Assigned To':<20} {'Created':<12}")
-    print("-" * 95)
+    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Category':<15} {'Status':<15} {'Assigned To':<20} {'Created':<12}")
+    print("-" * 110)
 
     for ticket in filtered_tickets:
         created_str = ticket['created_at'].strftime('%Y-%m-%d')
         title_truncated = ticket['title'][:28] + '..' if len(ticket['title']) > 30 else ticket['title']
 
-        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['status']:<15} "
+        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['category']:<15} {ticket['status']:<15} "
               f"{ticket['assigned_to']:<20} {created_str:<12}")
 
     print(f"\nTotal: {len(filtered_tickets)} tickets")
@@ -186,6 +193,7 @@ def view_ticket_details(ticket_id: int) -> None:
     print(f"Ticket #{ticket['id']}: {ticket['title']}")
     print("=" * 60)
     print(f"Priority: {ticket['priority']}")
+    print(f"Category: {ticket['category']}")
     print(f"Status: {ticket['status']}")
     print(f"Assigned To: {ticket['assigned_to']}")
     print(f"Created: {ticket['created_at'].strftime('%Y-%m-%d %H:%M')}")
@@ -320,12 +328,12 @@ def search_tickets(query: str) -> None:
         return
 
     # Display matching tickets
-    print(f"\n{'ID':<5} {'Title':<30} {'Status':<15} {'Assigned To':<20}")
-    print("-" * 70)
+    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Category':<15} {'Status':<15} {'Assigned To':<20}")
+    print("-" * 95)
 
     for ticket in matching_tickets:
         title_truncated = ticket['title'][:28] + '..' if len(ticket['title']) > 30 else ticket['title']
-        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['status']:<15} {ticket['assigned_to']:<20}")
+        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['category']:<15} {ticket['status']:<15} {ticket['assigned_to']:<20}")
 
     print(f"\nFound {len(matching_tickets)} matching tickets")
 
@@ -365,6 +373,7 @@ def main_menu() -> None:
         print("7. Close ticket")
         print("8. Search tickets")
         print("9. Search tickets by priority")
+        print("10. Search tickets by category")
         print("0. Exit")
 
         choice = input("\nSelect option: ").strip()
@@ -423,6 +432,13 @@ def main_menu() -> None:
                 view_tickets(filter_priority=priority)
             else:
                 print("Error: Invalid priority selection")
+
+        elif choice == '10':
+            category = ask_for_ListData("Category", categories_list, default_categories)
+            if category:
+                view_tickets(filter_category=category)
+            else:
+                print("Error: Invalid category selection")
 
         elif choice == '0':
             print("\n👋 Thank you for using Helpdesk System!")

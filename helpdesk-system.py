@@ -14,12 +14,13 @@ from typing import List, Dict, Optional
 # Global data structures
 tickets: List[Dict] = []
 priority_levels = []
+categories_list = []
 ticket_counter = 1
 
 # Starter tickets (demonstrates existing system with some data)
 def initialize_starter_data():
     """Initialize system with 3 existing tickets to demonstrate 'existing codebase' concept"""
-    global tickets, priority_levels, ticket_counter
+    global tickets, priority_levels, ticket_counter, categories_list
 
     tickets = [
         {
@@ -27,6 +28,7 @@ def initialize_starter_data():
             'title': 'Cannot access shared drive',
             'description': 'User reports unable to connect to //fileserver/shared. Getting "access denied" error.',
             'priority': 'High',
+            'category': 'Access/Permissions',
             'status': 'Open',
             'assigned_to': 'Support Team',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=2),
@@ -37,6 +39,7 @@ def initialize_starter_data():
             'title': 'Printer not working in Room 301',
             'description': 'HP LaserJet in Room 301 showing error code 49. Paper jams frequently.',
             'priority': 'Medium',
+            'category': 'Hardware',
             'status': 'In Progress',
             'assigned_to': 'Alice Johnson',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=1),
@@ -47,6 +50,7 @@ def initialize_starter_data():
             'title': 'Email not syncing on mobile device',
             'description': 'User cannot receive emails on iPhone. Webmail works fine.',
             'priority': 'Low',
+            'category': 'Software',
             'status': 'Closed',
             'assigned_to': 'Bob Smith',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=3),
@@ -55,6 +59,7 @@ def initialize_starter_data():
     ]
 
     priority_levels = ['Low', 'Medium', 'High']
+    categories_list = ['Hardware', 'Software', 'Network', 'Access/Permissions', 'Other']
 
     ticket_counter = 4  # Next ticket will be ID 4
 

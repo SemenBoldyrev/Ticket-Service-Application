@@ -30,7 +30,7 @@ def initialize_starter_data():
             'title': 'Cannot access shared drive',
             'description': 'User reports unable to connect to //fileserver/shared. Getting "access denied" error.',
             'priority': 'High',
-            'category': 'Access/Permissions',
+            'category': 'Access',
             'status': 'Open',
             'assigned_to': 'Support Team',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=2),
@@ -62,7 +62,7 @@ def initialize_starter_data():
 
     priority_levels = ['Low', 'Medium', 'High']
     default_priorities = "Medium"
-    categories_list = ['Hardware', 'Software', 'Network', 'Access/Permissions', 'Other']
+    categories_list = ['Hardware', 'Software', 'Network', 'Access', 'Other']
     default_categories = "None"
 
     ticket_counter = 4  # Next ticket will be ID 4
@@ -130,7 +130,7 @@ def ask_for_ListData(name: str, lst: list, default: str = "None") -> str:
             return None
         return lst[int(selection) - 1]
 
-def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[str] = None) -> None:
+def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[str] = None, filter_category: Optional[str] = None) -> None:
     """
     View all tickets or filtered by status
 
@@ -149,6 +149,10 @@ def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[
     if filter_priority:
         filtered_tickets = [t for t in filtered_tickets if t['priority'] == filter_priority]
         print(f"Filter: '{filter_priority}' priority tickets only")
+
+    if filter_category:
+        filtered_tickets = [t for t in filtered_tickets if t['category'] == filter_category]
+        print(f"Filter: '{filter_category}' category tickets only")
 
     if not filtered_tickets:
         print("No tickets found")

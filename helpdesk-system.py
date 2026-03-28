@@ -23,7 +23,7 @@ ticket_counter = 1
 
 DATA_FILE = 'tickets.json'
 
-def save_data():
+def save_tickets():
     """Save tickets and ticket_counter to JSON file"""
     data = {
         'tickets': [],
@@ -40,13 +40,13 @@ def save_data():
     with open(DATA_FILE, 'w') as f:
         json.dump(data, f, indent=4)
 
-def load_data():
+def load_tickets():
     """Load tickets and ticket_counter from JSON file"""
     global tickets, ticket_counter
     
     if not os.path.exists(DATA_FILE):
         initialize_starter_data()
-        save_data()
+        save_tickets()
         return
 
     try:
@@ -65,7 +65,7 @@ def load_data():
     except (json.JSONDecodeError, KeyError, ValueError) as e:
         print(f"Error loading data: {e}. Starting with default data.")
         initialize_starter_data()
-        save_data()
+        save_tickets()
 
 # Starter tickets (demonstrates existing system with some data)
 def initialize_starter_data():
@@ -159,7 +159,7 @@ def create_ticket() -> None:
     tickets.append(new_ticket)
     print(f"\n✓ Ticket #{ticket_counter} created successfully")
     ticket_counter += 1
-    save_data()
+    save_tickets()
 
 def ask_for_ListData(name: str, lst: list, default: str = "None") -> str:
     """
@@ -287,7 +287,7 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
         ticket['status'] = 'In Progress'
 
     print(f"\n✓ Ticket #{ticket_id} assigned to {staff_name}")
-    save_data()
+    save_tickets()
 
 def validate_staff_name(name: str) -> bool:
     """
@@ -334,7 +334,7 @@ def add_comment(ticket_id: int, comment: str) -> None:
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
     ticket['comments'].append(f"[{timestamp}] {comment}")
     print(f"\n✓ Comment added to ticket #{ticket_id}")
-    save_data()
+    save_tickets()
 
 
 def close_ticket(ticket_id: int) -> None:
@@ -357,7 +357,7 @@ def close_ticket(ticket_id: int) -> None:
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
     ticket['comments'].append(f"[{timestamp}] Ticket closed")
     print(f"\n✓ Ticket #{ticket_id} closed successfully")
-    save_data()
+    save_tickets()
 
 
 def get_date_input(prompt: str) -> Optional[datetime.datetime]:
@@ -610,7 +610,7 @@ def main_menu() -> None:
 
 if __name__ == "__main__":
     # Load data from file or initialize with starter data
-    load_data()
+    load_tickets()
 
     # Run main menu
     main_menu()

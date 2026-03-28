@@ -9,20 +9,68 @@ Students will apply Kanban practices to manage continuous flow of work items.
 """
 
 import datetime
+import json
+import os
 from typing import List, Dict, Optional
 
 # Global data structures
 tickets: List[Dict] = []
-default_priorities = ""
-priority_levels = []
-default_categories = ""
-categories_list = []
+default_priorities = "Medium"
+priority_levels = ['Low', 'Medium', 'High']
+default_categories = "None"
+categories_list = ['Hardware', 'Software', 'Network', 'Access', 'Other']
 ticket_counter = 1
+
+DATA_FILE = 'tickets.json'
+
+def save_data():
+    """Save tickets and ticket_counter to JSON file"""
+    data = {
+        'tickets': [],
+        'ticket_counter': ticket_counter
+    }
+    
+    # Convert datetime objects to strings for JSON serialization
+    for ticket in tickets:
+        ticket_copy = ticket.copy()
+        if isinstance(ticket_copy['created_at'], datetime.datetime):
+            ticket_copy['created_at'] = ticket_copy['created_at'].isoformat()
+        data['tickets'].append(ticket_copy)
+        
+    with open(DATA_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
+
+def load_data():
+    """Load tickets and ticket_counter from JSON file"""
+    global tickets, ticket_counter
+    
+    if not os.path.exists(DATA_FILE):
+        initialize_starter_data()
+        save_data()
+        return
+
+    try:
+        with open(DATA_FILE, 'r') as f:
+            data = json.load(f)
+            
+        ticket_counter = data.get('ticket_counter', 1)
+        loaded_tickets = data.get('tickets', [])
+        
+        # Convert strings back to datetime objects
+        for ticket in loaded_tickets:
+            if 'created_at' in ticket and isinstance(ticket['created_at'], str):
+                ticket['created_at'] = datetime.datetime.fromisoformat(ticket['created_at'])
+        
+        tickets = loaded_tickets
+    except (json.JSONDecodeError, KeyError, ValueError) as e:
+        print(f"Error loading data: {e}. Starting with default data.")
+        initialize_starter_data()
+        save_data()
 
 # Starter tickets (demonstrates existing system with some data)
 def initialize_starter_data():
     """Initialize system with 3 existing tickets to demonstrate 'existing codebase' concept"""
-    global tickets, priority_levels, ticket_counter, categories_list
+    global tickets, ticket_counter
 
     now = datetime.datetime.now()
     two_days_ago = (now - datetime.timedelta(days=2)).strftime('%Y-%m-%d %H:%M')
@@ -64,11 +112,6 @@ def initialize_starter_data():
             'comments': [f'[{three_days_ago}] Bob: Reset mobile sync settings', f'[{three_days_ago}] Bob: Issue resolved, user confirmed emails working']
         }
     ]
-
-    priority_levels = ['Low', 'Medium', 'High']
-    default_priorities = "Medium"
-    categories_list = ['Hardware', 'Software', 'Network', 'Access', 'Other']
-    default_categories = "None"
 
     ticket_counter = 4  # Next ticket will be ID 4
 
@@ -116,6 +159,7 @@ def create_ticket() -> None:
     tickets.append(new_ticket)
     print(f"\n✓ Ticket #{ticket_counter} created successfully")
     ticket_counter += 1
+    save_data()
 
 def ask_for_ListData(name: str, lst: list, default: str = "None") -> str:
     """
@@ -243,6 +287,7 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
         ticket['status'] = 'In Progress'
 
     print(f"\n✓ Ticket #{ticket_id} assigned to {staff_name}")
+    save_data()
 
 def validate_staff_name(name: str) -> bool:
     """
@@ -289,6 +334,7 @@ def add_comment(ticket_id: int, comment: str) -> None:
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
     ticket['comments'].append(f"[{timestamp}] {comment}")
     print(f"\n✓ Comment added to ticket #{ticket_id}")
+    save_data()
 
 
 def close_ticket(ticket_id: int) -> None:
@@ -311,6 +357,7 @@ def close_ticket(ticket_id: int) -> None:
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
     ticket['comments'].append(f"[{timestamp}] Ticket closed")
     print(f"\n✓ Ticket #{ticket_id} closed successfully")
+    save_data()
 
 
 def search_tickets(query: str) -> None:
@@ -489,8 +536,8 @@ def main_menu() -> None:
 
 
 if __name__ == "__main__":
-    # Initialize with starter data
-    initialize_starter_data()
+    # Load data from file or initialize with starter data
+    load_data()
 
     # Run main menu
     main_menu()

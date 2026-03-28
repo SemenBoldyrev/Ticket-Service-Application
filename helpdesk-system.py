@@ -363,7 +363,7 @@ def export_tickets_to_csv() -> None:
 
     with open(f'tickets_export_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv', mode='w') as file:
         csvData = ['ID', 'Title', 'Status', 'Assigned To', 'Created Date', 'Category', 'Priority']
-        writer = csv.DictWriter(file, fieldnames=csvData)
+        writer = csv.DictWriter(file, fieldnames=csvData, lineterminator='\n')
 
         writer.writeheader()
         for ticket in tickets:

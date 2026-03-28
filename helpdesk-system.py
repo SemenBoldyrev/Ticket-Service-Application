@@ -360,30 +360,78 @@ def close_ticket(ticket_id: int) -> None:
     save_data()
 
 
-def search_tickets(query: str) -> None:
+def get_date_input(prompt: str) -> Optional[datetime.datetime]:
+    """Helper to get and validate date input from user"""
+    date_str = input(prompt).strip()
+    if not date_str:
+        return None
+    try:
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d')
+    except ValueError:
+        print("Error: Invalid date format. Use YYYY-MM-DD.")
+        return None
+
+
+def search_tickets(query: Optional[str] = None, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None) -> None:
     """
-    Search tickets by ID or title
+    Search tickets by ID, title, or date range
 
     Args:
-        query: Search query (ticket ID number or title keywords)
+        query: Optional search query (ticket ID number or title keywords)
+        start_date: Optional start date for filtering
+        end_date: Optional end date for filtering
     """
-    print(f"\n=== Search Results for '{query}' ===")
+    if query:
+        print(f"\n=== Search Results for '{query}' ===")
+    else:
+        print(f"\n=== Search Results ===")
+    
+    if start_date:
+        print(f"From: {start_date.strftime('%Y-%m-%d')}")
+    if end_date:
+        print(f"To: {end_date.strftime('%Y-%m-%d')}")
 
-    # Try to search by ID first
-    if query.strip().isdigit():
+    # Try to search by ID first if query is provided and is a digit
+    if query and query.strip().isdigit():
         ticket_id = int(query)
         ticket = find_ticket_by_id(ticket_id)
         if ticket:
-            view_ticket_details(ticket_id)
-            return
+            # Check if it matches date range if provided
+            matches_date = True
+            if start_date and ticket['created_at'] < start_date:
+                matches_date = False
+            if end_date:
+                adjusted_end_date = end_date + datetime.timedelta(days=1) - datetime.timedelta(seconds=1)
+                if ticket['created_at'] > adjusted_end_date:
+                    matches_date = False
+            
+            if matches_date:
+                view_ticket_details(ticket_id)
+                return
+            else:
+                print(f"Ticket #{ticket_id} found but falls outside specified date range.")
+                return
 
-    # Search by title (case-insensitive)
-    query_lower = query.lower()
-    matching_tickets = [t for t in tickets if query_lower in t['title'].lower()
-                        or query_lower in t['description'].lower()]
+    # Search and filter
+    matching_tickets = tickets
+    
+    if query:
+        query_lower = query.lower()
+        matching_tickets = [t for t in matching_tickets if query_lower in t['title'].lower()
+                            or query_lower in t['description'].lower()]
+    
+    if start_date:
+        # Normalize start_date to beginning of day if it was just YYYY-MM-DD
+        start_of_day = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        matching_tickets = [t for t in matching_tickets if t['created_at'] >= start_of_day]
+    
+    if end_date:
+        # Normalize end_date to end of day
+        end_of_day = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        matching_tickets = [t for t in matching_tickets if t['created_at'] <= end_of_day]
 
     if not matching_tickets:
-        print("No tickets found matching query")
+        print("No tickets found matching criteria")
         return
 
     # Display matching tickets
@@ -454,6 +502,7 @@ def main_menu() -> None:
         print("9. Search tickets by priority")
         print("10. Search tickets by category")
         print("11. Export tickets to CSV")
+        print("12. Search tickets by date range")
         print("0. Exit")
 
         choice = input("\nSelect option: ").strip()
@@ -526,6 +575,30 @@ def main_menu() -> None:
                 print("\n✓ Tickets exported to tickets_export.csv successfully")
             except Exception as e:
                 print(f"Error exporting tickets to CSV: {e}")
+
+        elif choice == '12':
+            print("\n--- Search by Date Range ---")
+            print("1. Last 7 days")
+            print("2. Last 30 days")
+            print("3. Custom range")
+            
+            sub_choice = input("Select option: ").strip()
+            now = datetime.datetime.now()
+            start_date = None
+            end_date = None
+            
+            if sub_choice == '1':
+                start_date = now - datetime.timedelta(days=7)
+            elif sub_choice == '2':
+                start_date = now - datetime.timedelta(days=30)
+            elif sub_choice == '3':
+                start_date = get_date_input("Start date (YYYY-MM-DD): ")
+                end_date = get_date_input("End date (YYYY-MM-DD): ")
+            
+            if sub_choice in ['1', '2', '3']:
+                search_tickets(start_date=start_date, end_date=end_date)
+            else:
+                print("Invalid selection.")
 
         elif choice == '0':
             print("\n👋 Thank you for using Helpdesk System!")

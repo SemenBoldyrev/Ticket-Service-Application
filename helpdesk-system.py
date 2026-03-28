@@ -24,6 +24,11 @@ def initialize_starter_data():
     """Initialize system with 3 existing tickets to demonstrate 'existing codebase' concept"""
     global tickets, priority_levels, ticket_counter, categories_list
 
+    now = datetime.datetime.now()
+    two_days_ago = (now - datetime.timedelta(days=2)).strftime('%Y-%m-%d %H:%M')
+    one_day_ago = (now - datetime.timedelta(days=1)).strftime('%Y-%m-%d %H:%M')
+    three_days_ago = (now - datetime.timedelta(days=3)).strftime('%Y-%m-%d %H:%M')
+
     tickets = [
         {
             'id': 1,
@@ -33,8 +38,8 @@ def initialize_starter_data():
             'category': 'Access',
             'status': 'Open',
             'assigned_to': 'Support Team',
-            'created_at': datetime.datetime.now() - datetime.timedelta(days=2),
-            'comments': ['Initial report received from user@example.com']
+            'created_at': now - datetime.timedelta(days=2),
+            'comments': [f'[{two_days_ago}] Initial report received from user@example.com']
         },
         {
             'id': 2,
@@ -44,8 +49,8 @@ def initialize_starter_data():
             'category': 'Hardware',
             'status': 'In Progress',
             'assigned_to': 'Alice Johnson',
-            'created_at': datetime.datetime.now() - datetime.timedelta(days=1),
-            'comments': ['Ticket assigned to Alice', 'Alice: Checked printer, ordered replacement parts']
+            'created_at': now - datetime.timedelta(days=1),
+            'comments': [f'[{one_day_ago}] Ticket assigned to Alice', f'[{one_day_ago}] Alice: Checked printer, ordered replacement parts']
         },
         {
             'id': 3,
@@ -55,8 +60,8 @@ def initialize_starter_data():
             'category': 'Software',
             'status': 'Closed',
             'assigned_to': 'Bob Smith',
-            'created_at': datetime.datetime.now() - datetime.timedelta(days=3),
-            'comments': ['Bob: Reset mobile sync settings', 'Bob: Issue resolved, user confirmed emails working']
+            'created_at': now - datetime.timedelta(days=3),
+            'comments': [f'[{three_days_ago}] Bob: Reset mobile sync settings', f'[{three_days_ago}] Bob: Issue resolved, user confirmed emails working']
         }
     ]
 
@@ -205,7 +210,7 @@ def view_ticket_details(ticket_id: int) -> None:
 
     if ticket['comments']:
         print(f"\nComments ({len(ticket['comments'])}):")
-        for i, comment in enumerate(ticket['comments'], 1):
+        for i, comment in enumerate(reversed(ticket['comments']), 1):
             print(f"  {i}. {comment}")
     else:
         print("\nNo comments yet")
@@ -230,7 +235,8 @@ def assign_ticket(ticket_id: int, staff_name: str) -> None:
         return
 
     ticket['assigned_to'] = redact_staff_name(staff_name)
-    ticket['comments'].append(f"Ticket assigned to {staff_name}")
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+    ticket['comments'].append(f"[{timestamp}] Ticket assigned to {staff_name}")
 
     # Auto-change status to In Progress if currently Open
     if ticket['status'] == 'Open':
@@ -280,7 +286,8 @@ def add_comment(ticket_id: int, comment: str) -> None:
         print("Error: Comment cannot be empty")
         return
 
-    ticket['comments'].append(comment)
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+    ticket['comments'].append(f"[{timestamp}] {comment}")
     print(f"\n✓ Comment added to ticket #{ticket_id}")
 
 
@@ -301,7 +308,8 @@ def close_ticket(ticket_id: int) -> None:
         return
 
     ticket['status'] = 'Closed'
-    ticket['comments'].append(f"Ticket closed")
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+    ticket['comments'].append(f"[{timestamp}] Ticket closed")
     print(f"\n✓ Ticket #{ticket_id} closed successfully")
 
 

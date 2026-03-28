@@ -13,7 +13,9 @@ from typing import List, Dict, Optional
 
 # Global data structures
 tickets: List[Dict] = []
+default_priorities = ""
 priority_levels = []
+default_categories = ""
 categories_list = []
 ticket_counter = 1
 
@@ -59,7 +61,9 @@ def initialize_starter_data():
     ]
 
     priority_levels = ['Low', 'Medium', 'High']
+    default_priorities = "Medium"
     categories_list = ['Hardware', 'Software', 'Network', 'Access/Permissions', 'Other']
+    default_categories = "None"
 
     ticket_counter = 4  # Next ticket will be ID 4
 
@@ -80,7 +84,7 @@ def create_ticket() -> None:
         return
     
     # Select priority
-    priority = ask_for_priority()
+    priority = ask_for_ListData("Priority", priority_levels, default_priorities)
     if not priority:
         print("Error: Invalid priority selection")
         return
@@ -101,23 +105,23 @@ def create_ticket() -> None:
     print(f"\n✓ Ticket #{ticket_counter} created successfully")
     ticket_counter += 1
 
-def ask_for_priority() -> str:
+def ask_for_ListData(name: str, lst: list, default: str = "None") -> str:
     """
-    Ask user to select priority level\n
-    if priority levels are not defined, returns 'Medium'\n
+    Ask user to select an item from a list\n
+    if list is not defined, returns 'Medium'\n
     if user answer is invalid, returns None
     """
-    if len(priority_levels) == 0:
-        priority = "Medium"
+    if len(lst) == 0:
+        return default
     else:
-        print("Priority levels:")
-        for i in range(len(priority_levels)):
-            print(f"{i + 1}. {priority_levels[i]}")
+        print(f"{name} levels:")
+        for i in range(len(lst)):
+            print(f"{i + 1}. {lst[i]}")
 
-        priority = input(f"select priority (1-{len(priority_levels)}): ").strip()
-        if not priority.isdigit() or not (1 <= int(priority) <= len(priority_levels)):
+        selection = input(f"select {name} (1-{len(lst)}): ").strip()
+        if not selection.isdigit() or not (1 <= int(selection) <= len(lst)):
             return None
-        return priority_levels[int(priority) - 1]
+        return lst[int(selection) - 1]
 
 def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[str] = None) -> None:
     """
@@ -414,7 +418,7 @@ def main_menu() -> None:
                 search_tickets(query)
 
         elif choice == '9':
-            priority = ask_for_priority()
+            priority = ask_for_ListData("Priority", priority_levels, default_priorities)
             if priority:
                 view_tickets(filter_priority=priority)
             else:

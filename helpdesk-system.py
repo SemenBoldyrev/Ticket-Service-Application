@@ -357,6 +357,26 @@ def find_ticket_by_id(ticket_id: int) -> Optional[Dict]:
             return ticket
     return None
 
+def export_tickets_to_csv() -> None:
+    """Export all tickets to a CSV file"""
+    import csv
+
+    with open(f'tickets_export_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv', mode='w') as file:
+        csvData = ['ID', 'Title', 'Status', 'Assigned To', 'Created Date', 'Category', 'Priority']
+        writer = csv.DictWriter(file, fieldnames=csvData, lineterminator='\n')
+
+        writer.writeheader()
+        for ticket in tickets:
+            writer.writerow({
+                'ID': ticket['id'],
+                'Title': ticket['title'],
+                'Status': ticket['status'],
+                'Assigned To': ticket['assigned_to'],
+                'Created Date': ticket['created_at'].strftime('%Y-%m-%d %H:%M'),
+                'Category': ticket['category'],
+                'Priority': ticket['priority']
+            })
+
 
 def main_menu() -> None:
     """Main menu loop"""
@@ -378,6 +398,7 @@ def main_menu() -> None:
         print("8. Search tickets")
         print("9. Search tickets by priority")
         print("10. Search tickets by category")
+        print("11. Export tickets to CSV")
         print("0. Exit")
 
         choice = input("\nSelect option: ").strip()
@@ -443,6 +464,13 @@ def main_menu() -> None:
                 view_tickets(filter_category=category)
             else:
                 print("Error: Invalid category selection")
+
+        elif choice == '11':
+            try:
+                export_tickets_to_csv()
+                print("\n✓ Tickets exported to tickets_export.csv successfully")
+            except Exception as e:
+                print(f"Error exporting tickets to CSV: {e}")
 
         elif choice == '0':
             print("\n👋 Thank you for using Helpdesk System!")

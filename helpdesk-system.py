@@ -13,13 +13,16 @@ from typing import List, Dict, Optional
 
 # Global data structures
 tickets: List[Dict] = []
+default_priorities = ""
 priority_levels = []
+default_categories = ""
+categories_list = []
 ticket_counter = 1
 
 # Starter tickets (demonstrates existing system with some data)
 def initialize_starter_data():
     """Initialize system with 3 existing tickets to demonstrate 'existing codebase' concept"""
-    global tickets, priority_levels, ticket_counter
+    global tickets, priority_levels, ticket_counter, categories_list
 
     tickets = [
         {
@@ -27,6 +30,7 @@ def initialize_starter_data():
             'title': 'Cannot access shared drive',
             'description': 'User reports unable to connect to //fileserver/shared. Getting "access denied" error.',
             'priority': 'High',
+            'category': 'Access',
             'status': 'Open',
             'assigned_to': 'Support Team',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=2),
@@ -37,6 +41,7 @@ def initialize_starter_data():
             'title': 'Printer not working in Room 301',
             'description': 'HP LaserJet in Room 301 showing error code 49. Paper jams frequently.',
             'priority': 'Medium',
+            'category': 'Hardware',
             'status': 'In Progress',
             'assigned_to': 'Alice Johnson',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=1),
@@ -47,6 +52,7 @@ def initialize_starter_data():
             'title': 'Email not syncing on mobile device',
             'description': 'User cannot receive emails on iPhone. Webmail works fine.',
             'priority': 'Low',
+            'category': 'Software',
             'status': 'Closed',
             'assigned_to': 'Bob Smith',
             'created_at': datetime.datetime.now() - datetime.timedelta(days=3),
@@ -55,6 +61,9 @@ def initialize_starter_data():
     ]
 
     priority_levels = ['Low', 'Medium', 'High']
+    default_priorities = "Medium"
+    categories_list = ['Hardware', 'Software', 'Network', 'Access', 'Other']
+    default_categories = "None"
 
     ticket_counter = 4  # Next ticket will be ID 4
 
@@ -75,9 +84,15 @@ def create_ticket() -> None:
         return
     
     # Select priority
-    priority = ask_for_priority()
+    priority = ask_for_ListData("Priority", priority_levels, default_priorities)
     if not priority:
         print("Error: Invalid priority selection")
+        return
+    
+    # Select category
+    category = ask_for_ListData("Category", categories_list, default_categories)
+    if not category:
+        print("Error: Invalid category selection")
         return
 
     # Create new ticket
@@ -86,6 +101,7 @@ def create_ticket() -> None:
         'title': title,
         'description': description,
         'priority': priority,
+        'category': category,
         'status': 'Open',
         'assigned_to': 'Unassigned',
         'created_at': datetime.datetime.now(),
@@ -96,25 +112,25 @@ def create_ticket() -> None:
     print(f"\n✓ Ticket #{ticket_counter} created successfully")
     ticket_counter += 1
 
-def ask_for_priority() -> str:
+def ask_for_ListData(name: str, lst: list, default: str = "None") -> str:
     """
-    Ask user to select priority level\n
-    if priority levels are not defined, returns 'Medium'\n
+    Ask user to select an item from a list\n
+    if list is not defined, returns 'Medium'\n
     if user answer is invalid, returns None
     """
-    if len(priority_levels) == 0:
-        priority = "Medium"
+    if len(lst) == 0:
+        return default
     else:
-        print("Priority levels:")
-        for i in range(len(priority_levels)):
-            print(f"{i + 1}. {priority_levels[i]}")
+        print(f"{name} levels:")
+        for i in range(len(lst)):
+            print(f"{i + 1}. {lst[i]}")
 
-        priority = input(f"select priority (1-{len(priority_levels)}): ").strip()
-        if not priority.isdigit() or not (1 <= int(priority) <= len(priority_levels)):
+        selection = input(f"select {name} (1-{len(lst)}): ").strip()
+        if not selection.isdigit() or not (1 <= int(selection) <= len(lst)):
             return None
-        return priority_levels[int(priority) - 1]
+        return lst[int(selection) - 1]
 
-def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[str] = None) -> None:
+def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[str] = None, filter_category: Optional[str] = None) -> None:
     """
     View all tickets or filtered by status
 
@@ -134,19 +150,23 @@ def view_tickets(filter_status: Optional[str] = None, filter_priority: Optional[
         filtered_tickets = [t for t in filtered_tickets if t['priority'] == filter_priority]
         print(f"Filter: '{filter_priority}' priority tickets only")
 
+    if filter_category:
+        filtered_tickets = [t for t in filtered_tickets if t['category'] == filter_category]
+        print(f"Filter: '{filter_category}' category tickets only")
+
     if not filtered_tickets:
         print("No tickets found")
         return
 
     # Display tickets in table format
-    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Status':<15} {'Assigned To':<20} {'Created':<12}")
-    print("-" * 95)
+    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Category':<15} {'Status':<15} {'Assigned To':<20} {'Created':<12}")
+    print("-" * 110)
 
     for ticket in filtered_tickets:
         created_str = ticket['created_at'].strftime('%Y-%m-%d')
         title_truncated = ticket['title'][:28] + '..' if len(ticket['title']) > 30 else ticket['title']
 
-        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['status']:<15} "
+        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['category']:<15} {ticket['status']:<15} "
               f"{ticket['assigned_to']:<20} {created_str:<12}")
 
     print(f"\nTotal: {len(filtered_tickets)} tickets")
@@ -177,6 +197,7 @@ def view_ticket_details(ticket_id: int) -> None:
     print(f"Ticket #{ticket['id']}: {ticket['title']}")
     print("=" * 60)
     print(f"Priority: {ticket['priority']}")
+    print(f"Category: {ticket['category']}")
     print(f"Status: {ticket['status']}")
     print(f"Assigned To: {ticket['assigned_to']}")
     print(f"Created: {ticket['created_at'].strftime('%Y-%m-%d %H:%M')}")
@@ -311,12 +332,12 @@ def search_tickets(query: str) -> None:
         return
 
     # Display matching tickets
-    print(f"\n{'ID':<5} {'Title':<30} {'Status':<15} {'Assigned To':<20}")
-    print("-" * 70)
+    print(f"\n{'ID':<5} {'Title':<30} {'Priority':<10} {'Category':<15} {'Status':<15} {'Assigned To':<20}")
+    print("-" * 95)
 
     for ticket in matching_tickets:
         title_truncated = ticket['title'][:28] + '..' if len(ticket['title']) > 30 else ticket['title']
-        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['status']:<15} {ticket['assigned_to']:<20}")
+        print(f"{ticket['id']:<5} {title_truncated:<30} {ticket['priority']:<10} {ticket['category']:<15} {ticket['status']:<15} {ticket['assigned_to']:<20}")
 
     print(f"\nFound {len(matching_tickets)} matching tickets")
 
@@ -356,6 +377,7 @@ def main_menu() -> None:
         print("7. Close ticket")
         print("8. Search tickets")
         print("9. Search tickets by priority")
+        print("10. Search tickets by category")
         print("0. Exit")
 
         choice = input("\nSelect option: ").strip()
@@ -409,11 +431,18 @@ def main_menu() -> None:
                 search_tickets(query)
 
         elif choice == '9':
-            priority = ask_for_priority()
+            priority = ask_for_ListData("Priority", priority_levels, default_priorities)
             if priority:
                 view_tickets(filter_priority=priority)
             else:
                 print("Error: Invalid priority selection")
+
+        elif choice == '10':
+            category = ask_for_ListData("Category", categories_list, default_categories)
+            if category:
+                view_tickets(filter_category=category)
+            else:
+                print("Error: Invalid category selection")
 
         elif choice == '0':
             print("\n👋 Thank you for using Helpdesk System!")
